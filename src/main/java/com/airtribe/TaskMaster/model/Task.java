@@ -32,6 +32,19 @@ public class Task {
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(nullable = false)
+    private LocalDate dueDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.PENDING;
+
+    @Column(nullable = false)
+    private LocalDate createdAt = LocalDate.now();
+
     public Long getTaskId() {
         return taskId;
     }
@@ -88,16 +101,4 @@ public class Task {
         this.createdAt = createdAt;
     }
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(nullable = false)
-    private LocalDate dueDate;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status = Status.PENDING;
-
-    @Column(nullable = false)
-    private LocalDate createdAt = LocalDate.now();
 }
