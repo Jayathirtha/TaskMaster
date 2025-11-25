@@ -18,7 +18,7 @@ import java.util.Collections;
  * JPA Entity for the User. Implements UserDetails for Spring Security integration.
  */
 @Entity
-@Table(name = "auth_users")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
