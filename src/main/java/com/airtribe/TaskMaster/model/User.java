@@ -1,10 +1,6 @@
 package com.airtribe.TaskMaster.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * JPA Entity for the User. Implements UserDetails for Spring Security integration.
@@ -27,7 +25,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
     private String username; // Used as the primary identifier (e.g., email)
     private String password; // Hashed password
@@ -35,7 +33,11 @@ public class User implements UserDetails {
     private String lastName;
     private String role = "USER"; // Simple role management
 
-    // --- UserDetails implementation methods ---
+    @ManyToMany
+    private Set<Team> teams = new HashSet<>();
+
+    @ManyToMany
+    private Set<Comment> comments = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

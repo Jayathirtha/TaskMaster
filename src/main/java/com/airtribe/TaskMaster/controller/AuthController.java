@@ -102,7 +102,7 @@ public class AuthController {
 
         // Return a map containing non-sensitive profile information
         return ResponseEntity.ok(Map.of(
-                "id", user.getId(),
+                "id", user.getUserId(),
                 "firstName", user.getFirstName(),
                 "lastName", user.getLastName(),
                 "username", user.getUsername(),

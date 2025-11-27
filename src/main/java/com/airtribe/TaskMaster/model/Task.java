@@ -1,104 +1,61 @@
 package com.airtribe.TaskMaster.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * JPA Entity representing a Task.
- * It is linked to a user via the userId to ensure tasks are owned.
- */
 @Entity
 @Table(name = "tasks")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(exclude = {"project", "assignee", "comments"})
+@ToString(exclude = {"project", "assignee", "comments"})
 public class Task {
 
     public enum Status {
-        PENDING,
-        IN_PROGRESS,
-        COMPLETED
+        OPEN, IN_PROGRESS, COMPLETE, ARCHIVED
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long taskId;
 
-    // The ID of the owning user (from the User model).
-    // This allows us to enforce that users can only manage their own tasks.
-    @Column(nullable = false)
-    private Long userId;
-
-    @Column(nullable = false)
     private String title;
-
-    @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Column(nullable = false)
-    private LocalDate dueDate;
+    private LocalDateTime dueDate;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status = Status.PENDING;
+    private Status status = Status.OPEN;
 
-    @Column(nullable = false)
-    private LocalDate createdAt = LocalDate.now();
+    // Relationship: Many-to-One with Project
+    @ManyToOne
+    private Project project;
 
-    public Long getTaskId() {
-        return taskId;
-    }
+    // Relationship: Many-to-One with User (Assignee)
+    @ManyToOne
+    private User assignee;
 
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDate getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDate dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public LocalDate getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
-    }
-
+    // Relationship: One-to-Many with Comment
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
 }
