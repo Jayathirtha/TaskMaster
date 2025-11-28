@@ -1,5 +1,6 @@
 package com.airtribe.TaskMaster.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +28,7 @@ import java.util.Set;
 @Builder
 @EqualsAndHashCode(exclude = {"team", "tasks"})
 @ToString(exclude = {"team", "tasks"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler","team","tasks"})
 public class Project {
 
     @Id

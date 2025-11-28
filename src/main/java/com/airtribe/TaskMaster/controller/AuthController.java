@@ -5,6 +5,7 @@ import com.airtribe.TaskMaster.dto.UserDTO;
 import com.airtribe.TaskMaster.model.User;
 import com.airtribe.TaskMaster.service.JwtService;
 import com.airtribe.TaskMaster.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,11 +59,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Endpoint for user login and JWT generation.
-     * Maps to requirement 2: login.
-     * Maps to requirement 3: JWT session management.
-     */
     @PostMapping("/auth/login")
     public ResponseEntity<?> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         try {
@@ -129,5 +125,16 @@ public class AuthController {
             // Should not happen if the user is authenticated, but good practice to handle
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> invalidateSession() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ){ //|| authentication.getPrincipal() instanceof String) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
+        }
+        SecurityContextHolder.clearContext(); // Clear the security context
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "User Logged off."));
     }
 }

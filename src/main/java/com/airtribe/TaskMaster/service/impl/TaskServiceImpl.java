@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -72,6 +74,7 @@ public class TaskServiceImpl implements TaskService {
                 .dueDate(taskDTO.getDueDate())
                 .project(project)
                 .assignee(assignee)
+                .createdAt(LocalDateTime.now())
                 .status(Task.Status.OPEN)
                 .build();
 
@@ -157,4 +160,29 @@ public class TaskServiceImpl implements TaskService {
 
         return task.getComments().stream().collect(Collectors.toList());
     }
+
+    @Override
+    public List<Task> getTasksByStatus(Task.Status taskStatus) {
+        if(taskStatus != null) {
+            try {
+                return taskRepository.findTaskByStatus(taskStatus);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Task> getTasksBySearchItem(String searchItem) {
+        if(searchItem != null) {
+            try {
+                return taskRepository.findTaskByTitleOrDescription(searchItem);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Collections.emptyList();
+    }
+
 }

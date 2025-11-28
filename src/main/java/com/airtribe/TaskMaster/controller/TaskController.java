@@ -4,6 +4,7 @@ import com.airtribe.TaskMaster.DTO.CommentDTO;
 import com.airtribe.TaskMaster.DTO.TaskDTO;
 import com.airtribe.TaskMaster.model.Comment;
 import com.airtribe.TaskMaster.model.Task;
+import com.airtribe.TaskMaster.model.User;
 import com.airtribe.TaskMaster.service.TaskService;
 import com.airtribe.TaskMaster.service.TeamService;
 import com.sun.security.auth.UserPrincipal;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * REST Controller for Task and Comment Management.
@@ -38,10 +40,10 @@ public class TaskController {
 
     private String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof UserPrincipal)) {
+        if (authentication == null || !authentication.isAuthenticated() ) { // || !(authentication.getPrincipal() instanceof UserPrincipal)
             throw new SecurityException("User not authenticated.");
         }
-        return ((UserPrincipal) authentication.getPrincipal()).getName();
+        return  ((User) Objects.requireNonNull(authentication.getPrincipal())).getUsername();
     }
 
     // --- Task Endpoints ---
@@ -124,6 +126,25 @@ public class TaskController {
             return ResponseEntity.ok(tasks);
         } catch (SecurityException | IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> getTasksByCriteria(@RequestParam String status,@RequestParam String searchItem) {
+        if((status != null && !status.isEmpty())) {
+            try {
+                List<Task> tasks = taskService.getTasksByStatus(Task.Status.valueOf(status));
+                return ResponseEntity.ok(tasks);
+            } catch (SecurityException | IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            }
+        }else {
+            try {
+                List<Task> tasks = taskService.getTasksBySearchItem(searchItem);
+                return ResponseEntity.ok(tasks);
+            } catch (SecurityException | IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            }
         }
     }
 

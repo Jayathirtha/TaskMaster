@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -122,6 +123,7 @@ public class TeamServiceImpl implements TeamService {
         checkMembership(team, principalUsername); // Only members can create projects
 
         project.setTeam(team);
+        project.setCreatedAt(LocalDateTime.now());
         team.getProjects().add(project);
 
         return projectRepository.save(project);

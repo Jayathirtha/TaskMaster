@@ -1,5 +1,6 @@
 package com.airtribe.TaskMaster.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler","teams"})
 public class User implements UserDetails {
 
     @Id
@@ -31,13 +33,16 @@ public class User implements UserDetails {
     private String password; // Hashed password
     private String firstName;
     private String lastName;
-    private String role = "USER"; // Simple role management
+    private String role = "USER";
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
     private Set<Team> teams = new HashSet<>();
 
-    @ManyToMany
+    @OneToMany
     private Set<Comment> comments = new HashSet<>();
+
+    @OneToMany
+    private Set<Task> tasks;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

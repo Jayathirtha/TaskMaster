@@ -3,6 +3,7 @@ package com.airtribe.TaskMaster.controller;
 import com.airtribe.TaskMaster.DTO.TeamDTO;
 import com.airtribe.TaskMaster.model.Project;
 import com.airtribe.TaskMaster.model.Team;
+import com.airtribe.TaskMaster.model.User;
 import com.airtribe.TaskMaster.service.TeamService;
 import com.sun.security.auth.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +35,16 @@ public class TeamController {
 
     private String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof UserPrincipal)) {
+        if (authentication == null || !authentication.isAuthenticated() ) {// || !(authentication.getPrincipal() instanceof UserPrincipal)) {
             throw new SecurityException("User not authenticated.");
         }
-        return ((UserPrincipal) authentication.getPrincipal()).getName();
+        return ((User) authentication.getPrincipal()).getUsername();
     }
 
     // --- Team Endpoints ---
 
     /**
-     * Creates a new team and automatically adds the current user as a member.
+     * Creates a new team and add the current user as a member.
      * POST /api/teams
      */
     @PostMapping
@@ -97,7 +98,7 @@ public class TeamController {
      * POST /api/teams/{teamId}/projects
      */
     @PostMapping("/{teamId}/projects")
-    public ResponseEntity<?> createProject(@PathVariable Long teamId, @RequestBody Project project) {
+    public ResponseEntity<?> createProject(@PathVariable() Long teamId, @RequestBody Project project) {
         try {
             Project newProject = teamService.createProject(teamId, project, getCurrentUsername());
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(

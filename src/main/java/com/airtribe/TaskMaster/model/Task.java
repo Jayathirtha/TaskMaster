@@ -1,15 +1,7 @@
 package com.airtribe.TaskMaster.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +21,7 @@ import java.util.Set;
 @Builder
 @EqualsAndHashCode(exclude = {"project", "assignee", "comments"})
 @ToString(exclude = {"project", "assignee", "comments"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler","assignee"})
 public class Task {
 
     public enum Status {
@@ -48,11 +41,21 @@ public class Task {
     private Status status = Status.OPEN;
 
     // Relationship: Many-to-One with Project
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "task_project",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
     private Project project;
 
     // Relationship: Many-to-One with User (Assignee)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "task_assignee",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private User assignee;
 
     // Relationship: One-to-Many with Comment

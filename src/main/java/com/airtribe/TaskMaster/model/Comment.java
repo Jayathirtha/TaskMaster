@@ -1,11 +1,6 @@
 package com.airtribe.TaskMaster.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,10 +29,10 @@ public class Comment {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // Relationship: Many-to-One with Task
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Task task;
 
     // Relationship: Many-to-One with User (Author)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User author;
 }

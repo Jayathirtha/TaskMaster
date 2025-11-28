@@ -23,4 +23,7 @@ public interface TaskService {
     // Comment Management
     Comment addComment(CommentDTO commentDTO, String authorUsername);
     List<Comment> getCommentsByTask(Long taskId);
+    List<Task> getTasksByStatus(Task.Status taskStatus);
+    List<Task> getTasksBySearchItem(String searchItem);
+
 }

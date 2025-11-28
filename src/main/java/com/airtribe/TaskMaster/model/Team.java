@@ -1,15 +1,7 @@
 package com.airtribe.TaskMaster.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +20,7 @@ import java.util.Set;
 @Builder
 @EqualsAndHashCode(exclude = {"members", "projects"})
 @ToString(exclude = {"members", "projects"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler","projects"})
 public class Team {
 
     @Id
@@ -39,7 +32,7 @@ public class Team {
 
     // Relationship: Many-to-Many with User
     // Join table to link users (members) to this team.
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "team_members",
             joinColumns = @JoinColumn(name = "team_id"),
