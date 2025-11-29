@@ -108,6 +108,7 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <!-- MySQL Connector Dependency (REPLACING H2) -->
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>

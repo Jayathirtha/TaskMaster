@@ -1,10 +1,7 @@
 package com.airtribe.TaskMaster.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,29 +10,39 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * JPA Entity for the User. Implements UserDetails for Spring Security integration.
  */
 @Entity
-@Table(name = "auth_users")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler","teams"})
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
     private String username; // Used as the primary identifier (e.g., email)
     private String password; // Hashed password
     private String firstName;
     private String lastName;
-    private String role = "USER"; // Simple role management
+    private String role = "USER";
 
-    // --- UserDetails implementation methods ---
+    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
+    private Set<Team> teams = new HashSet<>();
+
+    @OneToMany
+    private Set<Comment> comments = new HashSet<>();
+
+    @OneToMany
+    private Set<Task> tasks;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

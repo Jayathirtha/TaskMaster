@@ -1,23 +1,28 @@
 package com.airtribe.TaskMaster.service;
 
+import com.airtribe.TaskMaster.model.TokenBlacklist;
+import com.airtribe.TaskMaster.repository.TokenBlacklistRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Service to handle JWT creation, validation, and claim extraction.
- */
+
 @Service
 public class JwtService {
+
+    @Autowired
+    private  TokenBlacklistRepository tokenBlacklistRepository;
 
     @Value("${jwt.secret}")
     private String SECRET; // Loaded from application.properties
@@ -25,24 +30,16 @@ public class JwtService {
     // JWT expiration time: 24 hours (in milliseconds)
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
 
-    /**
-     * Extracts the username (subject) from the token.
-     */
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    /**
-     * Extracts a single claim from the token.
-     */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    /**
-     * Extracts all claims from the token.
-     */
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parser()
@@ -52,9 +49,6 @@ public class JwtService {
                 .getBody();
     }
 
-    /**
-     * Validates the token against the UserDetails and checks expiration.
-     */
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
@@ -68,17 +62,11 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    /**
-     * Generates a token for a given UserDetails object.
-     */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
     }
 
-    /**
-     * Creates the token with claims, subject (username), and expiration.
-     */
     private String createToken(Map<String, Object> claims, String userName) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -89,11 +77,19 @@ public class JwtService {
                 .compact();
     }
 
-    /**
-     * Decodes the secret key from the application properties.
-     */
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public TokenBlacklist clearSession(String authorization) {
+        String token = null;
+
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            token = authorization.substring(7);
+            TokenBlacklist blacklist = new TokenBlacklist(token, LocalDateTime.now());
+           return tokenBlacklistRepository.save(blacklist);
+        }
+        return null;
     }
 }
