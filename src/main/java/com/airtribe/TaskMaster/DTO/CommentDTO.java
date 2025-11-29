@@ -8,6 +8,6 @@ import lombok.Data;
 @Data
 public class CommentDTO {
     private String content;
-    private String attachmentFileName; // Mock: actual file handling simplified to metadata
+    private String attachmentFileName; // Mock
     private Long taskId;
 }

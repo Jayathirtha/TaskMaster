@@ -1,5 +1,6 @@
 package com.airtribe.TaskMaster.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @Builder
 @EqualsAndHashCode(exclude = {"task", "author"})
 @ToString(exclude = {"task", "author"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler","task"})
 public class Comment {
 
     @Id
@@ -35,4 +37,6 @@ public class Comment {
     // Relationship: Many-to-One with User (Author)
     @ManyToOne(fetch = FetchType.LAZY)
     private User author;
+    
+
 }

@@ -11,15 +11,41 @@
 			"item": [
 				{
 					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Extract 'token' from JSON response and save/update as 'authToken' variable\r",
+									"if (pm.response.code === 200) {\r",
+									"    var jsonData = pm.response.json();\r",
+									"if(jsonData.token){\r",
+									"        pm.environment.set(\"authToken\", jsonData.token);\r",
+									"}\r",
+									"    \r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "noauth"
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"jay@example.com\",\r\n    \"password\": \"strongpassword123\"\r\n}",
+							"raw": "{\r\n    \"username\": \"yry1@example.com\",\r\n    \"password\": \"strongpassword123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -143,14 +169,28 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "tasks",
-			"item": [
+				},
 				{
-					"name": "task by Id",
+					"name": "logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Extract 'token' from JSON response and save/update as 'authToken' variable",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.environment.set(\"authToken\", jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -164,7 +204,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/api/tasks/1",
+							"raw": "http://localhost:8080/api/logout",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -172,15 +212,32 @@
 							"port": "8080",
 							"path": [
 								"api",
-								"tasks",
-								"1"
+								"logout"
 							]
 						}
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "tasks",
+			"item": [
 				{
 					"name": "create tasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -189,13 +246,13 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{token}}",
+								"value": "Bearer {{authToken}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"testTask1\",\r\n    \"description\": \"description\",\r\n    \"dueDate\" : \"2025-11-25T16:59:00\"\r\n}",
+							"raw": "{\r\n    \"title\": \"Test Task7\",\r\n    \"description\": \"description7\",\r\n    \"dueDate\" : \"2025-11-27T09:43:15\",\r\n    \"assigneeUsername\" :\"yry@example.com\",\r\n    \"projectId\":\"2\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -218,45 +275,6 @@
 					"response": []
 				},
 				{
-					"name": "update task details",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqYXlAZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQwNjk2NzgsImV4cCI6MTc2NDE1NjA3OH0.fshuwbtnufuxc8h8GgpoBd5KaHUTd79Pl_8HOT-OZ6Rd4hyt72ocPaKlKHGL_HD_",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"testTask1\",\r\n    \"description\": \"description changed test 124\",\r\n    \"dueDate\": \"2025-11-25\",\r\n    \"status\": \"IN_PROGRESS\",\r\n    \"createdAt\": \"2025-11-25\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/api/tasks/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"tasks",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Search Task by Details",
 					"request": {
 						"auth": {
@@ -271,51 +289,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/api/tasks?search=&sortBy=2025-11-25&status=COMPLETED",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"tasks"
-							],
-							"query": [
-								{
-									"key": "search",
-									"value": ""
-								},
-								{
-									"key": "sortBy",
-									"value": "2025-11-25"
-								},
-								{
-									"key": "status",
-									"value": "COMPLETED"
-								}
-							]
-						},
-						"description": "search by Status, Title and sort by dueDate"
-					},
-					"response": []
-				},
-				{
-					"name": "task by Id",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "http://localhost:8080/api/tasks/3",
+							"raw": "http://localhost:8080/api/tasks/search?status=COMPLETE&searchItem=6",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -324,14 +298,62 @@
 							"path": [
 								"api",
 								"tasks",
-								"3"
+								"search"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "COMPLETE"
+								},
+								{
+									"key": "searchItem",
+									"value": "6"
+								}
+							]
+						},
+						"description": "search by Status, Title and sort by dueDate"
+					},
+					"response": []
+				},
+				{
+					"name": "update status",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/{{taskId}}/status?status=IN_PROGRESS",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								"{{taskId}}",
+								"status"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "IN_PROGRESS"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Tasks created by User",
+					"name": "Get all Tasks by User",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -345,7 +367,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/api/tasks/list",
+							"raw": "http://localhost:8080/api/tasks/my",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -354,10 +376,332 @@
 							"path": [
 								"api",
 								"tasks",
-								"list"
+								"my"
 							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieves all tasks for a specific project",
+					"request": {
+						"auth": {
+							"type": "noauth"
 						},
-						"description": "Get a list of all tasks created by the user"
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/project/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								"project",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assigns a task to a user.",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/{{taskId}}/assign?username=final@example.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								"{{taskId}}",
+								"assign"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "final@example.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add comments",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"content\": \"final comment on task_6 \",\r\n    \"attachmentFileName\": \"test2.png\",\r\n    \"taskId\" : \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/{{taskId}}/comments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								"{{taskId}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all comments by Task ID ",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/{{taskId}}/comments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								"{{taskId}}",
+								"comments"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Team",
+			"item": [
+				{
+					"name": "Create Team",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Team test 6\",\r\n    \"description\": \"test Team 6 description\",\r\n    \"memberUsernames\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/teams",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"teams"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve Team with Current user",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/teams/my",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"teams",
+								"my"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add Members to Team",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/teams/{{teamId}}/members?username=jay1@example.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"teams",
+								"{{teamId}}",
+								"members"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "jay1@example.com"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "projects",
+			"item": [
+				{
+					"name": "Create new Project",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"project-1\",\r\n    \"description\":\"project test 1\"\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/teams/{{teamId}}/projects",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"teams",
+								"{{teamId}}",
+								"projects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieves all projects belonging to a specific team",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/teams/{{teamId}}/projects",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"teams",
+								"{{teamId}}",
+								"projects"
+							]
+						}
 					},
 					"response": []
 				}
@@ -367,6 +711,21 @@
 	"variable": [
 		{
 			"key": "token",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "teamId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "taskId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "projectId",
 			"value": "",
 			"type": "default"
 		}

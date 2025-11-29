@@ -3,9 +3,11 @@ package com.airtribe.TaskMaster.controller;
 import com.airtribe.TaskMaster.DTO.AuthRequest;
 import com.airtribe.TaskMaster.dto.UserDTO;
 import com.airtribe.TaskMaster.model.User;
+import com.airtribe.TaskMaster.repository.TokenBlacklistRepository;
 import com.airtribe.TaskMaster.service.JwtService;
 import com.airtribe.TaskMaster.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -40,6 +37,8 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private TokenBlacklistRepository tokenBlacklistRepository;
 
     /**
      * Endpoint for user registration.
@@ -128,13 +127,19 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<?> invalidateSession() {
+    public ResponseEntity<?> invalidateSession(@RequestHeader String authorization) throws Throwable {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated() ){ //|| authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated."));
         }
-        SecurityContextHolder.clearContext(); // Clear the security context
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "User Logged off."));
+
+        try {
+            jwtService.clearSession(authorization);
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "User Logged off."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+
     }
 }

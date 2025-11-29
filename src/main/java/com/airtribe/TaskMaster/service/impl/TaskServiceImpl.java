@@ -88,11 +88,10 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
 
-        checkProjectAccess(task.getProject().getId(), principalUsername); // Ensure principal has access
+        checkProjectAccess(task.getProject().getId(), principalUsername);
 
         User newAssignee = userRepository.findByUsername(assigneeUsername)
                 .orElseThrow(() -> new UsernameNotFoundException("Assignee user not found: " + assigneeUsername));
-
         task.setAssignee(newAssignee);
         return taskRepository.save(task);
     }
