@@ -24,9 +24,13 @@ Team Membership: Functionality to add members (requires existing membership).
 
 Task Management: Create, assign, and update task status within a project.
 
-Task Details: Tasks support comments and attachment metadata logging.
+**Task Filtering & Search**: Dynamic filtering by status, assignee, dates, keywords, and more with sorting support.
+
+Task Details: Tasks support comments with **actual file attachments** (binary storage in database).
 
 Authorization Checks: Strict access control ensures users only interact with teams/projects they are members of.
+
+File Attachments: Upload, download, and manage file attachments on task comments (supports up to 10MB per file).
 
 🛠️ Tech Stack
 
@@ -77,6 +81,8 @@ Run the application using the Spring Boot Maven plugin:
 
 
 The API will be accessible at http://localhost:8080.
+
+
 
 📌 Key API Endpoints
 
@@ -228,7 +234,7 @@ POST
 
 /api/tasks/{taskId}/comments
 
-Add a comment and attachment metadata to a task.
+Add a comment to a task.
 
 Secured (Team Member)
 
@@ -239,3 +245,86 @@ GET
 Retrieve all comments for a task.
 
 Secured (Team Member)
+
+GET
+
+/api/tasks/filter
+
+**Filter and search tasks** with multiple criteria (status, keyword, assignee, dates, etc.).
+
+Secured
+
+GET
+
+/api/tasks/quick-search?keyword={text}
+
+Quick search tasks by keyword in title/description.
+
+Secured
+
+GET
+
+/api/tasks/overdue
+
+Get all overdue tasks (past due date, not completed).
+
+Secured
+
+GET
+
+/api/tasks/unassigned
+
+Get all tasks without an assignee.
+
+Secured
+
+### File Attachments (/api/attachments)
+
+Method
+
+Path
+
+Description
+
+Access
+
+POST
+
+/api/attachments/upload?commentId={id}
+
+Upload a file attachment to a comment (multipart/form-data).
+
+Secured (Team Member)
+
+GET
+
+/api/attachments/{attachmentId}/download
+
+Download a file attachment.
+
+Secured (Team Member)
+
+GET
+
+/api/attachments/{attachmentId}
+
+Get attachment metadata (without file data).
+
+Secured (Team Member)
+
+GET
+
+/api/attachments/comment/{commentId}
+
+Get all attachments for a specific comment.
+
+Secured (Team Member)
+
+DELETE
+
+/api/attachments/{attachmentId}
+
+Delete an attachment (author only).
+
+Secured (Author)
+

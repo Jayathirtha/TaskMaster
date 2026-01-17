@@ -10,6 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -17,8 +19,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"task", "author"})
-@ToString(exclude = {"task", "author"})
+@EqualsAndHashCode(exclude = {"task", "author", "attachments"})
+@ToString(exclude = {"task", "author", "attachments"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler","task"})
 public class Comment {
 
@@ -27,7 +29,10 @@ public class Comment {
     private Long commentId;
 
     private String content;
-    private String attachmentFileName; // Mock attachment metadata
+    
+    @Deprecated // Deprecated in favor of attachments list
+    private String attachmentFileName; // Legacy field for backward compatibility
+    
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // Relationship: Many-to-One with Task
@@ -38,5 +43,9 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     private User author;
     
+    // Relationship: One-to-Many with Attachment (NEW)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Attachment> attachments = new ArrayList<>();
 
 }
