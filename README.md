@@ -1,334 +1,87 @@
 
-Secure Collaboration API
-
+# **TaskMaster assignment**
 This Spring Boot API provides secure User Authentication, Authorization, and a modular Team/Project Collaboration system. It utilizes JWT for stateless session management and adheres to SOLID design principles.
 
-🚀 Features
 
-Authentication & Security
+**features**
 
-Secure Authentication: Uses BCrypt for password hashing.
 
-JWT Session Management: Implements stateless sessions using JWT tokens.
+#### Collaboration & Management
 
-Immediate Logout: Achieved via a server-side Token Blacklist for token invalidation.
+* User Profiles: Secure endpoints for viewing and updating user details.
 
-Role-Based Access (Basic): Foundation for user roles.
+* Team & Projects: Users create teams and define projects within them.
 
-Collaboration & Management
+* Team Membership: Functionality to add members (requires existing membership).
 
-User Profiles: Secure endpoints for viewing and updating user details.
+* Task Management: Create, assign, and update task status within a project.
 
-Team & Projects: Users create teams and define projects within them.
+* Task Details: Tasks support comments and attachment metadata logging.
 
-Team Membership: Functionality to add members (requires existing membership).
+* Authorization Checks: Strict access control ensures users only interact with teams/projects they are members of.
 
-Task Management: Create, assign, and update task status within a project.
 
-**Task Filtering & Search**: Dynamic filtering by status, assignee, dates, keywords, and more with sorting support.
-
-Task Details: Tasks support comments with **actual file attachments** (binary storage in database).
-
-Authorization Checks: Strict access control ensures users only interact with teams/projects they are members of.
-
-File Attachments: Upload, download, and manage file attachments on task comments (supports up to 10MB per file).
-
-🛠️ Tech Stack
+## Tech Stack
 
 Language: Java 17+
 
-Framework: Spring Boot 3.2.0 (Web, JPA, Security)
+* Framework: Spring Boot 3.2.0 (Web, JPA, Security)
 
-Database: MySQL
+* Database: MySQL
 
-Session Management: JJWT (JSON Web Token)
+* Session Management: JJWT (JSON Web Token)
 
-Security: Spring Security & BCrypt
+* Security: Spring Security & BCrypt
 
-⚙️ Setup and Configuration
+## Running Tests
 
-Prerequisites
+Setup and Configuration
 
-Java Development Kit (JDK) 17 or higher.
+#### Pre-requisites
 
-Maven.
+- Java Development Kit (JDK) 17 or higher.
 
-A running MySQL instance (default port 3306).
+- Maven.
 
-Database Configuration
+- A running MySQL instance (default port 3306).
 
+#### To run tests, use the post man collection provided in the repository.
+https://github.com/Jayathirtha/TaskMaster/blob/master/Task%20Master.postman_collection.json
+
+## Run Locally
+
+Clone the project
+
+#### 1. Database Configuration
 
 The API requires a MySQL database named authdb.
 
 Database & Credentials: Ensure authdb exists and update src/main/resources/application.properties with your MySQL connection details.
 
-
+```bash
 spring.datasource.url=jdbc:mysql://localhost:3306/authdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
 spring.datasource.username=<YOUR_MYSQL_USERNAME>
 spring.datasource.password=<YOUR_MYSQL_PASSWORD>
+```
+#### 2. JWT Secret: Use a unique, strong, Base64-encoded key (min. 256 bits) for production.
 
-
-
-JWT Secret: Use a unique, strong, Base64-encoded key (min. 256 bits) for production.
-
+```bash
 jwt.secret=413F4428472B4B6250655368566D597133743677397A24432646294A404E6352
-
-
-
-Running the Application
+```
+#### 3. Running the Application
 
 Run the application using the Spring Boot Maven plugin:
 
+```bash
 ./mvnw spring-boot:run
-
-
+```
 
 The API will be accessible at http://localhost:8080.
 
-
-
-📌 Key API Endpoints
+#### key API Endpoints
 
 All secured endpoints require the Authorization: Bearer <TOKEN> header.
 
-Authentication & Profile (/api/auth, /api/user)
-
-Method
-
-Path
-
-Description
-
-Access
-
-POST
-
-/api/auth/register
-
-Create a new user account.
-
-Public
-
-POST
-
-/api/auth/login
-
-Authenticate user and receive a JWT.
-
-Public
-
-POST
-
-/api/auth/logout
-
-Invalidate the current JWT by blacklisting it.
-
-Secured
-
-GET
-
-/api/user/profile
-
-Retrieve the authenticated user's profile.
-
-Secured
-
-PUT
-
-/api/user/profile
-
-Update the authenticated user's profile details.
-
-Secured
-
-Teams & Projects (/api/teams)
-
-Method
-
-Path
-
-Description
-
-Access
-
-POST
-
-/api/teams
-
-Create a new team (current user becomes a member).
-
-Secured
-
-GET
-
-/api/teams/my
-
-Get all teams the current user is a member of.
-
-Secured
-
-POST
-
-/api/teams/{teamId}/members?username={name}
-
-Add a user to an existing team.
-
-Secured (Team Member)
-
-POST
-
-/api/teams/{teamId}/projects
-
-Create a new project under a specific team.
-
-Secured (Team Member)
-
-Task Management (/api/tasks)
-
-Method
-
-Path
-
-Description
-
-Access
-
-POST
-
-/api/tasks
-
-Create a new task for a specified project.
-
-Secured (Team Member)
-
-GET
-
-/api/tasks/my
-
-Get all tasks assigned to the current user.
-
-Secured
-
-GET
-
-/api/tasks/project/{projectId}
-
-Get all tasks for a specific project.
-
-Secured (Team Member)
-
-PATCH
-
-/api/tasks/{taskId}/assign?username={name}
-
-Assign a task to another team member.
-
-Secured (Team Member)
-
-PATCH
-
-/api/tasks/{taskId}/status?status={STATUS}
-
-Update task status (e.g., OPEN, COMPLETE).
-
-Secured (Team Member)
-
-POST
-
-/api/tasks/{taskId}/comments
-
-Add a comment to a task.
-
-Secured (Team Member)
-
-GET
-
-/api/tasks/{taskId}/comments
-
-Retrieve all comments for a task.
-
-Secured (Team Member)
-
-GET
-
-/api/tasks/filter
-
-**Filter and search tasks** with multiple criteria (status, keyword, assignee, dates, etc.).
-
-Secured
-
-GET
-
-/api/tasks/quick-search?keyword={text}
-
-Quick search tasks by keyword in title/description.
-
-Secured
-
-GET
-
-/api/tasks/overdue
-
-Get all overdue tasks (past due date, not completed).
-
-Secured
-
-GET
-
-/api/tasks/unassigned
-
-Get all tasks without an assignee.
-
-Secured
-
-### File Attachments (/api/attachments)
-
-Method
-
-Path
-
-Description
-
-Access
-
-POST
-
-/api/attachments/upload?commentId={id}
-
-Upload a file attachment to a comment (multipart/form-data).
-
-Secured (Team Member)
-
-GET
-
-/api/attachments/{attachmentId}/download
-
-Download a file attachment.
-
-Secured (Team Member)
-
-GET
-
-/api/attachments/{attachmentId}
-
-Get attachment metadata (without file data).
-
-Secured (Team Member)
-
-GET
-
-/api/attachments/comment/{commentId}
-
-Get all attachments for a specific comment.
-
-Secured (Team Member)
-
-DELETE
-
-/api/attachments/{attachmentId}
-
-Delete an attachment (author only).
-
-Secured (Author)
-
-
+#### i Authentication & Profile (/api/auth, /api/user)
+#### ii Teams & Projects (/api/teams)
+#### iii Task Management (/api/tasks)
