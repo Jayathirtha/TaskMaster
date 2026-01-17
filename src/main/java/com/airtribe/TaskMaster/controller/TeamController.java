@@ -1,11 +1,8 @@
 package com.airtribe.TaskMaster.controller;
 
-import com.airtribe.TaskMaster.DTO.TeamDTO;
-import com.airtribe.TaskMaster.model.Project;
-import com.airtribe.TaskMaster.model.Team;
-import com.airtribe.TaskMaster.model.User;
-import com.airtribe.TaskMaster.service.TeamService;
-import com.sun.security.auth.UserPrincipal;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import com.airtribe.TaskMaster.DTO.TeamDTO;
+import com.airtribe.TaskMaster.model.Project;
+import com.airtribe.TaskMaster.model.Team;
+import com.airtribe.TaskMaster.model.User;
+import com.airtribe.TaskMaster.service.TeamService;
 
 /**
  * REST Controller for Team and Project Management.

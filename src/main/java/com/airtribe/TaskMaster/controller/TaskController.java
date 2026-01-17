@@ -1,14 +1,12 @@
 package com.airtribe.TaskMaster.controller;
 
-import com.airtribe.TaskMaster.DTO.CommentDTO;
-import com.airtribe.TaskMaster.DTO.TaskDTO;
-import com.airtribe.TaskMaster.model.Comment;
-import com.airtribe.TaskMaster.model.Task;
-import com.airtribe.TaskMaster.model.User;
-import com.airtribe.TaskMaster.service.TaskService;
-import com.airtribe.TaskMaster.service.TeamService;
-import com.sun.security.auth.UserPrincipal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,9 +21,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import com.airtribe.TaskMaster.DTO.CommentDTO;
+import com.airtribe.TaskMaster.DTO.TaskDTO;
+import com.airtribe.TaskMaster.DTO.TaskFilterDTO;
+import com.airtribe.TaskMaster.model.Comment;
+import com.airtribe.TaskMaster.model.Task;
+import com.airtribe.TaskMaster.model.User;
+import com.airtribe.TaskMaster.service.TaskService;
 
 /**
  * REST Controller for Task and Comment Management.
@@ -129,6 +131,94 @@ public class TaskController {
         }
     }
 
+    /**
+     * GET /api/tasks/filter
+     * 
+     * Query Parameters (all optional):
+     * Examples:
+     * - /api/tasks/filter?status=OPEN
+     * - /api/tasks/filter?searchKeyword=bug&status=OPEN
+     * - /api/tasks/filter?overdue=true
+     * - /api/tasks/filter?assigneeUsername=john&sortBy=dueDate&sortDirection=ASC
+     */
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterTasks(
+            @RequestParam(required = false) Task.Status status,
+            @RequestParam(required = false) String searchKeyword,
+            @RequestParam(required = false) Long projectId,
+            @RequestParam(required = false) Long assigneeId,
+            @RequestParam(required = false) String assigneeUsername,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDateTo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdTo,
+            @RequestParam(required = false) Boolean overdue,
+            @RequestParam(required = false) Boolean unassigned,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDirection) {
+        
+        try {
+            TaskFilterDTO filterDTO = new TaskFilterDTO();
+            filterDTO.setStatus(status);
+            filterDTO.setSearchKeyword(searchKeyword);
+            filterDTO.setProjectId(projectId);
+            filterDTO.setAssigneeId(assigneeId);
+            filterDTO.setAssigneeUsername(assigneeUsername);
+            filterDTO.setDueDateFrom(dueDateFrom);
+            filterDTO.setDueDateTo(dueDateTo);
+            filterDTO.setCreatedFrom(createdFrom);
+            filterDTO.setCreatedTo(createdTo);
+            filterDTO.setOverdue(overdue);
+            filterDTO.setUnassigned(unassigned);
+            filterDTO.setSortBy(sortBy);
+            filterDTO.setSortDirection(sortDirection);
+
+            List<Task> tasks = taskService.filterTasks(filterDTO);
+            return ResponseEntity.ok(tasks);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Quick search tasks by keyword.
+     * GET /api/tasks/quick-search?keyword=bug
+     */
+    @GetMapping("/quick-search")
+    public ResponseEntity<?> quickSearch(@RequestParam String keyword) {
+        try {
+            List<Task> tasks = taskService.searchTasks(keyword);
+            return ResponseEntity.ok(tasks);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Get all overdue tasks.
+     * GET /api/tasks/overdue
+     */
+    @GetMapping("/overdue")
+    public ResponseEntity<List<Task>> getOverdueTasks() {
+        List<Task> tasks = taskService.getOverdueTasks();
+        return ResponseEntity.ok(tasks);
+    }
+
+    /**
+     * Get all unassigned tasks.
+     * GET /api/tasks/unassigned
+     */
+    @GetMapping("/unassigned")
+    public ResponseEntity<List<Task>> getUnassignedTasks() {
+        List<Task> tasks = taskService.getUnassignedTasks();
+        return ResponseEntity.ok(tasks);
+    }
+
+    /**
+     * Legacy search endpoint (deprecated - use /filter instead).
+     * GET /api/tasks/search
+     */
+    @Deprecated
     @GetMapping("/search")
     public ResponseEntity<?> getTasksByCriteria(@RequestParam String status,@RequestParam String searchItem) {
         if((status != null && !status.isEmpty())) {
