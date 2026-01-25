@@ -2,6 +2,7 @@ package com.airtribe.TaskMaster.service;
 
 import com.airtribe.TaskMaster.DTO.CommentDTO;
 import com.airtribe.TaskMaster.DTO.TaskDTO;
+import com.airtribe.TaskMaster.DTO.TaskFilterDTO;
 import com.airtribe.TaskMaster.model.Comment;
 import com.airtribe.TaskMaster.model.Task;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,7 +24,17 @@ public interface TaskService {
     // Comment Management
     Comment addComment(CommentDTO commentDTO, String authorUsername);
     List<Comment> getCommentsByTask(Long taskId);
+    
+    // Legacy search methods (deprecated)
+    @Deprecated
     List<Task> getTasksByStatus(Task.Status taskStatus);
+    @Deprecated
     List<Task> getTasksBySearchItem(String searchItem);
+    
+    // New dynamic filtering and searching
+    List<Task> filterTasks(TaskFilterDTO filterDTO);
+    List<Task> searchTasks(String keyword);
+    List<Task> getOverdueTasks();
+    List<Task> getUnassignedTasks();
 
 }

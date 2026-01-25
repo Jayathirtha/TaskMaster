@@ -2,6 +2,7 @@ package com.airtribe.TaskMaster.service.impl;
 
 import com.airtribe.TaskMaster.DTO.CommentDTO;
 import com.airtribe.TaskMaster.DTO.TaskDTO;
+import com.airtribe.TaskMaster.DTO.TaskFilterDTO;
 import com.airtribe.TaskMaster.model.*;
 import com.airtribe.TaskMaster.repository.CommentRepository;
 import com.airtribe.TaskMaster.repository.ProjectRepository;
@@ -9,7 +10,10 @@ import com.airtribe.TaskMaster.repository.TaskRepository;
 import com.airtribe.TaskMaster.repository.UserRepository;
 import com.airtribe.TaskMaster.service.TaskService;
 import com.airtribe.TaskMaster.service.TeamService;
+import com.airtribe.TaskMaster.specification.TaskSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -182,6 +186,72 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         return Collections.emptyList();
+    }
+
+    // --- New Dynamic Filtering and Searching ---
+
+    @Override
+    public List<Task> filterTasks(TaskFilterDTO filterDTO) {
+        // Build specification from filter criteria
+        Specification<Task> spec = TaskSpecification.filterTasks(
+                filterDTO.getStatus(),
+                filterDTO.getSearchKeyword(),
+                filterDTO.getProjectId(),
+                filterDTO.getAssigneeId(),
+                filterDTO.getDueDateFrom(),
+                filterDTO.getDueDateTo(),
+                filterDTO.getCreatedFrom(),
+                filterDTO.getCreatedTo()
+        );
+
+        // Add special filters
+        if (Boolean.TRUE.equals(filterDTO.getOverdue())) {
+            spec = spec.and(TaskSpecification.isOverdue());
+        }
+        if (Boolean.TRUE.equals(filterDTO.getUnassigned())) {
+            spec = spec.and(TaskSpecification.isUnassigned());
+        }
+        if (filterDTO.getAssigneeUsername() != null && !filterDTO.getAssigneeUsername().trim().isEmpty()) {
+            spec = spec.and(TaskSpecification.assignedToUser(filterDTO.getAssigneeUsername()));
+        }
+
+        // Apply sorting
+        Sort sort = buildSort(filterDTO.getSortBy(), filterDTO.getSortDirection());
+        
+        return taskRepository.findAll(spec, sort);
+    }
+
+    @Override
+    public List<Task> searchTasks(String keyword) {
+        Specification<Task> spec = TaskSpecification.searchByKeyword(keyword);
+        return taskRepository.findAll(spec);
+    }
+
+    @Override
+    public List<Task> getOverdueTasks() {
+        Specification<Task> spec = TaskSpecification.isOverdue();
+        return taskRepository.findAll(spec);
+    }
+
+    @Override
+    public List<Task> getUnassignedTasks() {
+        Specification<Task> spec = TaskSpecification.isUnassigned();
+        return taskRepository.findAll(spec);
+    }
+
+    /**
+     * Helper method to build sorting criteria.
+     */
+    private Sort buildSort(String sortBy, String sortDirection) {
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            return Sort.by(Sort.Direction.DESC, "createdAt"); // Default sort
+        }
+
+        Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection) 
+                ? Sort.Direction.ASC 
+                : Sort.Direction.DESC;
+
+        return Sort.by(direction, sortBy);
     }
 
 }
